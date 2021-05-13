@@ -1,33 +1,31 @@
-const express = require("express");
-const app = express();    /// crear el server ///     //killall -p node
-const morgan = require('morgan'); 
-const fs= require('fs')
-const path = require('path')
-var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
-app.use(morgan('combined', { stream: accessLogStream }))     // guarda todo req  login acces.log
-app.use(morgan('tiny')) 
+const express = require( 'express' );
+const morgan = require('morgan'); //middleware application logger
+const nunjucks = require( 'nunjucks' );
 
-const loggin = (req,res,next) => {
-    console.log(`${req.method} ${req.url}`)   
-     next()
-}
+const app = express(); // crea una instancia de una aplicación de express
 
-const loggin2 = (req,res,next) =>{  
-    console.log("entraste")
-    next()
+// Configurando Nunjucks
+app.set('view engine', 'html'); // hace que res.render funcione con archivos html
+app.engine('html', nunjucks.render); // cuando le den archivos html a res.render, va a usar nunjucks
+nunjucks.configure('views'); // apunta a nunjucks al directorio correcto para los templates
 
-}
+app.use(morgan('tiny'))
 
+let tweetsDeEjemplo = [
+    { id: 1, name: "juan", content: "este es un tweeettt de juan" },
+    { id: 2, name: "carlos", content: "este es un tweeettt de carlos" },
+    { id: 3, name: "pepe", content: "este es un tweeettt de pepe" },
+];
 
-app.use(loggin)
-// use loggin2 cuando entre a /special
-app.use('/special',loggin2)
+app.get('/', function (req, res) {
+    res.render( 'index', { tweets: tweetsDeEjemplo });
+});
+ /// le dio el css a la pag 
+ app.use(express.static('./public'))
 
-
-
-
-app.listen(4000, function(){                                 //levantar el server               
-    console.log('listening on http://localhost:4000')
+ 
+app.listen(3000, function(){
+    console.log('Estas escuhando en el puerto 3000')
 });
 
 
